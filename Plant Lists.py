@@ -1,13 +1,23 @@
-<<<<<<< HEAD
-Test
-=======
 import pygame
 
->>>>>>> 5a593283b57a1b87a919a3156ade31c1d05fadee
+# Initialize Pygame
 pygame.init()
 
+# Window size
 screen_width = 360
 screen_height = 650
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Plant Lists")
-colour = (0, 0, 0)
+colour = (250, 250, 250)
+
+# Main loop
+run = True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+screen.fill(colour)
+
+# Quit Pygame
+pygame.quit()
