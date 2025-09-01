@@ -2,11 +2,13 @@ import sqlite3
 import hashlib
 
 # ------------------ Database Setup ------------------ #
+DB_FILE = "appdata.db"
+
 def setup_database():
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
 
-    # Users table
+    # Accounts table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS userdata (
         id INTEGER PRIMARY KEY,
@@ -18,7 +20,7 @@ def setup_database():
     # Friends table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS friends (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         user_id INTEGER NOT NULL,
         friend_id INTEGER NOT NULL,
         status TEXT NOT NULL CHECK(status IN ('pending','accepted')),
@@ -30,12 +32,13 @@ def setup_database():
     conn.commit()
     conn.close()
 
+
 # ------------------ Utility ------------------ #
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def get_user_id(username):
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM userdata WHERE username = ?", (username,))
     result = cursor.fetchone()
@@ -44,32 +47,33 @@ def get_user_id(username):
 
 # ------------------ Authentication ------------------ #
 def register():
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect(DB_FILE)   # use the same file everywhere
     cursor = conn.cursor()
 
     while True:
         username = input("Choose a username: ").strip()
         password = input("Choose a password: ").strip()
-        confirm_password = input("Confirm your password: ").strip()
+        confirm = input("Confirm password: ").strip()
 
-        if password != confirm_password:
+        if password != confirm:
             print("Passwords do not match. Try again.")
             continue
 
         try:
             cursor.execute(
-                "INSERT INTO userdata (username, password) VALUES (?, ?)",
-                (username, hash_password(password))
+                "INSERT INTO userdata (username, password) VALUES (?, ?)", 
+                (username, hash_password(password))  # hash password!
             )
             conn.commit()
-            print(f"Registered successfully! Welcome, {username}!")
+            print(f"User '{username}' registered successfully! Welcome {username}!")
             conn.close()
-            return username  # Auto-login after registration
+            return username
         except sqlite3.IntegrityError:
-            print("Username already exists. Try a different one.")
+            print("That username is already taken. Please try another.")
+
 
 def login():
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     username = input("Enter username: ").strip()
@@ -105,7 +109,7 @@ def main_menu(username):
 
 # ------------------ Friends System ------------------ #
 def count_requests(user_id):
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM friends WHERE friend_id = ? AND status = 'pending'", (user_id,))
@@ -149,7 +153,7 @@ def friends_menu(username):
 
 
 def view_friends(user_id):
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -173,7 +177,7 @@ def view_friends(user_id):
 
 
 def view_requests(user_id):
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -215,7 +219,7 @@ def view_requests(user_id):
             print("Cancelled.")
             continue
 
-        conn = sqlite3.connect("userdata.db")
+        conn = sqlite3.connect("appdata.db")
         cursor = conn.cursor()
 
         if action == "a":
@@ -246,7 +250,7 @@ def view_requests(user_id):
 
 
 def view_outgoing(user_id):
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -281,7 +285,7 @@ def add_friend(user_id):
         print("You cannot add yourself.")
         return
 
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -313,7 +317,7 @@ def remove_friend(user_id):
         print("User not found.")
         return
 
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -334,7 +338,7 @@ def remove_friend(user_id):
 
 def handle_request(user_id, from_username, accept):
     from_id = get_user_id(from_username)
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     if accept:
@@ -356,7 +360,7 @@ def handle_request(user_id, from_username, accept):
 
 def cancel_request(user_id, to_username):
     to_id = get_user_id(to_username)
-    conn = sqlite3.connect("userdata.db")
+    conn = sqlite3.connect("appdata.db")
     cursor = conn.cursor()
 
     cursor.execute("""
