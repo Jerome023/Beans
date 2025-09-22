@@ -363,9 +363,10 @@ def render_friend_list(page):
     return total_pages
 
 # Input Boxes
-login_user=InputBox(60,200,240,40); login_pass=InputBox(60,260,240,40,password=True)
-reg_user=InputBox(60,180,240,40); reg_pass=InputBox(60,240,240,40,password=True); reg_conf=InputBox(60,300,240,40,password=True)
-add_box=InputBox(60,180,240,40); rem_box=InputBox(60,180,240,40) 
+
+login_user=InputBox(60,140,240,40); login_pass=InputBox(60,240,240,40,password=True)
+reg_user=InputBox(60,140,240,40); reg_pass=InputBox(60,220,240,40,password=True); reg_conf=InputBox(60,300,240,40,password=True)
+add_box=InputBox(60,140,240,40); rem_box=InputBox(60,140,240,40) 
 
 # load images
 plant_img = pygame.image.load("Plant.png")
@@ -664,11 +665,16 @@ while running:
             screen.set_clip(None)
 
     elif current_screen == "login":
+        label_surface = FONT.render("Username:", True, (0,0,0)); screen.blit(label_surface, (login_user.rect.x, login_user.rect.y - 25))
+        label_surface = FONT.render("Password:", True, (0,0,0)); screen.blit(label_surface, (login_pass.rect.x, login_pass.rect.y - 25))
         login_user.draw(screen); login_pass.draw(screen)
         buttons = [Button("Log in", 65, 340, 230, 50, do_login),
                    Button("Register", 65, 410, 230, 50, go_register),
                    Button("Back", 65, 480, 230, 50, go_home)]
     elif current_screen == "register":
+        label_surface = FONT.render("Username:", True, (0,0,0)); screen.blit(label_surface, (reg_user.rect.x, reg_user.rect.y - 25))
+        label_surface = FONT.render("Password:", True, (0,0,0)); screen.blit(label_surface, (reg_pass.rect.x, reg_pass.rect.y - 25))
+        label_surface = FONT.render("Confirm Password:", True, (0,0,0)); screen.blit(label_surface, (reg_conf.rect.x, reg_conf.rect.y - 25))
         reg_user.draw(screen); reg_pass.draw(screen); reg_conf.draw(screen)
         buttons = [Button("Register", 65, 370, 230, 50, do_register),
                    Button("Back", 65, 440, 230, 50, go_login)]
@@ -690,10 +696,12 @@ while running:
         if friend_page < total_pages-1:
             buttons.append(Button(">", WIDTH-70, HEIGHT-90, 40, 30, lambda: globals().update(friend_page=friend_page+1)))
     elif current_screen == "friends_add":
+        label_surface = FONT.render("Friend Username:", True, (0,0,0)); screen.blit(label_surface, (add_box.rect.x, add_box.rect.y - 25))
         add_box.draw(screen)
         buttons = [Button("Add", 65, 240, 230, 40, do_add_friend),
                    Button("Back", 65, 300, 230, 40, go_friends)]
     elif current_screen == "friends_remove":
+        label_surface = FONT.render("Friend Username:", True, (0,0,0)); screen.blit(label_surface, (rem_box.rect.x, rem_box.rect.y - 25))
         rem_box.draw(screen)
         buttons = [Button("Remove", 65, 240, 230, 40, do_remove_friend),
                    Button("Back", 65, 300, 230, 40, go_friends)]
